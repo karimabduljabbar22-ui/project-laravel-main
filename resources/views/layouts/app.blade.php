@@ -171,6 +171,7 @@
                             ['route' => 'facilities', 'label' => 'Fasilitas'],
                             ['route' => 'galleries', 'label' => 'Galeri'],
                             ['route' => 'extracurriculars', 'label' => 'Ekstrakurikuler'],
+                            ['route' => 'ppdb.index', 'label' => 'PPDB'],
                             ['route' => 'contact', 'label' => 'Kontak'],
                         ];
                     @endphp
@@ -189,8 +190,8 @@
 
                 <!-- Desktop Action CTA -->
                 <div class="hidden lg:flex items-center space-x-3">
-                    <a href="{{ route('contact') }}" class="inline-flex items-center space-x-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold text-xs tracking-wide shadow-lg shadow-blue-600/30 glow-hover transition-all">
-                        <span>Daftar / PPDB</span>
+                    <a href="{{ route('ppdb.index') }}" class="inline-flex items-center space-x-2 px-5 py-2.5 rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-semibold text-xs tracking-wide shadow-lg shadow-emerald-600/30 glow-hover transition-all">
+                        <span>Daftar PPDB</span>
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                     </a>
 
@@ -244,8 +245,8 @@
             </div>
 
             <div class="pt-4 mt-3 border-t border-slate-800/80 space-y-2">
-                <a href="{{ route('contact') }}" class="w-full flex items-center justify-center space-x-2 py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold text-sm shadow-lg shadow-blue-600/30">
-                    <span>Pendaftaran PPDB & Kontak</span>
+                <a href="{{ route('ppdb.index') }}" class="w-full flex items-center justify-center space-x-2 py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-semibold text-sm shadow-lg shadow-emerald-600/30">
+                    <span>Pendaftaran PPDB</span>
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                 </a>
                 @if (Route::has('login'))

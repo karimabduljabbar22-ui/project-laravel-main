@@ -50,8 +50,30 @@ class PpdbApplicant extends Model
         static::creating(function ($applicant) {
             if (empty($applicant->registration_number)) {
                 $year = date('Y');
-                $count = static::whereYear('created_at', $year)->count() + 1;
-                $applicant->registration_number = sprintf('PPDB-%s-%04d', $year, $count);
+                $prefix = "PPDB-{$year}-";
+
+                // Gunakan withTrashed agar soft-deleted juga dihitung
+                $last = static::withTrashed()
+                    ->where('registration_number', 'like', $prefix.'%')
+                    ->max('registration_number');
+
+                if ($last) {
+                    $lastNumber = (int) substr($last, strlen($prefix));
+                    $next = $lastNumber + 1;
+                } else {
+                    $next = 1;
+                }
+
+                // Pastikan nomor benar-benar unik (loop jika ternyata sudah ada)
+                do {
+                    $number = sprintf('%s%04d', $prefix, $next);
+                    $exists = static::withTrashed()->where('registration_number', $number)->exists();
+                    if ($exists) {
+                        $next++;
+                    }
+                } while ($exists);
+
+                $applicant->registration_number = $number;
             }
         });
     }
@@ -76,21 +98,27 @@ class PpdbApplicant extends Model
         if ($search) {
             return $query->where(function ($q) use ($search) {
                 $q->where('full_name', 'like', "%{$search}%")
-                  ->orWhere('registration_number', 'like', "%{$search}%")
-                  ->orWhere('nisn', 'like', "%{$search}%")
-                  ->orWhere('origin_school', 'like', "%{$search}%")
-                  ->orWhere('phone', 'like', "%{$search}%");
+                    ->orWhere('registration_number', 'like', "%{$search}%")
+                    ->orWhere('nisn', 'like', "%{$search}%")
+                    ->orWhere('origin_school', 'like', "%{$search}%")
+                    ->orWhere('phone', 'like', "%{$search}%");
             });
         }
+
         return $query;
     }
 
     public function getDocumentUrl(string $column): ?string
     {
         $val = $this->{$column};
-        if (!$val) return null;
-        if (str_starts_with($val, 'http')) return $val;
-        return asset('storage/' . $val);
+        if (! $val) {
+            return null;
+        }
+        if (str_starts_with($val, 'http')) {
+            return $val;
+        }
+
+        return asset('storage/'.$val);
     }
 
     public function getStatusBadgeAttribute(): array

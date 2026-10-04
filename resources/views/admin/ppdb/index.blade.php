@@ -20,10 +20,10 @@
     <!-- Stats Summary -->
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
         @foreach([
-            ['label' => 'Total Pendaftar', 'value' => $stats['total'] ?? 0, 'color' => 'blue'],
-            ['label' => 'Menunggu', 'value' => $stats['pending'] ?? 0, 'color' => 'amber'],
-            ['label' => 'Diterima', 'value' => $stats['accepted'] ?? 0, 'color' => 'emerald'],
-            ['label' => 'Ditolak', 'value' => $stats['rejected'] ?? 0, 'color' => 'red'],
+            ['label' => 'Total Pendaftar', 'value' => $totalApplicants ?? $stats['total'] ?? 0],
+            ['label' => 'Menunggu', 'value' => $pendingApplicants ?? $stats['pending'] ?? 0],
+            ['label' => 'Diterima', 'value' => $acceptedApplicants ?? $stats['accepted'] ?? 0],
+            ['label' => 'Diverifikasi', 'value' => $verifiedApplicants ?? $stats['verified'] ?? 0],
         ] as $stat)
             <div class="rounded-xl border border-slate-800/70 bg-slate-900/50 p-4">
                 <p class="text-xs text-slate-500">{{ $stat['label'] }}</p>
@@ -49,27 +49,36 @@
                 <tbody class="divide-y divide-slate-800/60">
                     @forelse($applicants as $applicant)
                         <tr class="hover:bg-slate-800/30 transition-colors">
-                            <td class="px-5 py-3.5 text-xs font-mono text-slate-400">{{ $applicant->registration_number ?? '#'.str_pad($applicant->id, 5, '0', STR_PAD_LEFT) }}</td>
+                            <td class="px-5 py-3.5 text-xs font-mono text-slate-400">
+                                {{ $applicant->registration_number ?? $applicant->no_pendaftaran ?? 'PPDB-'.date('Y').'-'.str_pad($applicant->id, 4, '0', STR_PAD_LEFT) }}
+                            </td>
                             <td class="px-5 py-3.5">
-                                <p class="text-sm font-semibold text-white">{{ $applicant->full_name }}</p>
+                                <p class="text-sm font-semibold text-white">{{ $applicant->full_name ?? $applicant->nama_lengkap ?? $applicant->name }}</p>
                                 <p class="text-xs text-slate-500">{{ $applicant->email ?? '-' }}</p>
                             </td>
-                            <td class="px-5 py-3.5 text-sm text-slate-400">{{ $applicant->previous_school ?? '-' }}</td>
+                            <td class="px-5 py-3.5 text-sm text-slate-400">{{ $applicant->previous_school ?? $applicant->asal_sekolah ?? '-' }}</td>
                             <td class="px-5 py-3.5 text-sm text-slate-400">{{ $applicant->ppdbWave->name ?? 'Gelombang 1' }}</td>
                             <td class="px-5 py-3.5">
                                 @php
+                                    $currentStatus = strtolower($applicant->status ?? 'menunggu');
                                     $statusMap = [
+                                        'menunggu' => ['label' => 'Menunggu', 'class' => 'bg-amber-500/10 border-amber-500/20 text-amber-400'],
                                         'pending' => ['label' => 'Menunggu', 'class' => 'bg-amber-500/10 border-amber-500/20 text-amber-400'],
+                                        'diverifikasi' => ['label' => 'Diverifikasi', 'class' => 'bg-blue-500/10 border-blue-500/20 text-blue-400'],
+                                        'diterima' => ['label' => 'Diterima', 'class' => 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'],
                                         'accepted' => ['label' => 'Diterima', 'class' => 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'],
+                                        'ditolak' => ['label' => 'Ditolak', 'class' => 'bg-red-500/10 border-red-500/20 text-red-400'],
                                         'rejected' => ['label' => 'Ditolak', 'class' => 'bg-red-500/10 border-red-500/20 text-red-400'],
                                     ];
-                                    $status = $statusMap[$applicant->status ?? 'pending'] ?? $statusMap['pending'];
+                                    $status = $statusMap[$currentStatus] ?? $statusMap['menunggu'];
                                 @endphp
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold border {{ $status['class'] }}">{{ $status['label'] }}</span>
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold border {{ $status['class'] }}">
+                                    {{ $status['label'] }}
+                                </span>
                             </td>
                             <td class="px-5 py-3.5">
                                 <div class="flex items-center justify-end space-x-2">
-                                    <a href="{{ route('admin.ppdb.show', $applicant) }}" class="p-1.5 rounded-lg text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 transition" title="Detail">
+                                    <a href="{{ route('admin.ppdb.show', $applicant->id) }}" class="p-1.5 rounded-lg text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 transition" title="Detail">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
                                     </a>
                                 </div>
